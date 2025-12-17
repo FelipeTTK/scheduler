@@ -34,8 +34,6 @@ Everything remains explicit, testable, and inspectable, while staying pleasant t
 
 ## Example
 
-## Example
-
 ```go
 scheduler.NewJobBuilder(s).
     Name("reports:generate").
