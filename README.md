@@ -27,6 +27,44 @@
 - Command execution helper for running CLI tasks with background mode and env-aware tagging.
 - Auto-generated, compile-tested examples ensure docs and behavior stay in sync.
 
+## Quick example: list jobs as an ASCII table
+
+```go
+package main
+
+import (
+	"github.com/go-co-op/gocron/v2"
+	"github.com/goforj/scheduler"
+)
+
+func main() {
+	s, _ := gocron.NewScheduler()
+	s.Start()
+	defer s.Shutdown()
+
+	scheduler.NewJobBuilder(s).
+		EveryMinute().
+		Name("cleanup").
+		Do(func() {})
+
+	scheduler.NewJobBuilder(s).PrintJobsList()
+}
+```
+
+Example output:
+
+```
++--------------------------------------------------------------------------------------+
+| Scheduler Jobs › (3)
++----------------+----------+----------------+---------+--------+----------------------+
+| Name           | Type     | Schedule       | Handler | Next   | Tags                 |
++----------------+----------+----------------+---------+--------+----------------------+
+| hello:world    | command  | cron 0 0 * * 0 | -       | in 3d  | env=dev, args="w"    |
+| hello:world    | command  | every 1h       | -       | in 1h  | env=dev, args="hour" |
+| cleanup        | function | every 1m       | cleanup | in 1m  | env=dev              |
++----------------+----------+----------------+---------+--------+----------------------+
+```
+
 ## Why scheduler?
 
 Go has excellent low-level scheduling libraries, but defining real-world schedules often turns into a maze of cron strings, conditionals, and glue code.
