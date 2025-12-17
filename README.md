@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    A fluent, Laravel-inspired scheduler for Go that wraps gocron with a clear, expressive, and production-ready job scheduling API.
+    A fluent, Laravel-inspired scheduler for Go that wraps gocron with expressive APIs for defining, filtering, and controlling scheduled jobs.
 </p>
 
 <p align="center">
@@ -15,6 +15,38 @@
     <a href="https://codecov.io/gh/goforj/scheduler" ><img src="https://codecov.io/github/goforj/scheduler/graph/badge.svg?token=9KT46ZORP3"/></a>
     <a href="https://goreportcard.com/report/github.com/goforj/scheduler"><img src="https://goreportcard.com/badge/github.com/goforj/scheduler" alt="Go Report Card"></a>
 </p>
+
+## Features
+
+- Fluent, chainable API for intervals, cron strings, and calendar helpers (daily/weekly/monthly).
+- Overlap protection with optional distributed locking plus per-job tags and metadata.
+- Filters (weekdays/weekends/time windows) and hooks (before/after/success/failure) keep jobs predictable.
+- Command execution helper for running CLI tasks with background mode and env-aware tagging.
+- Auto-generated, compile-tested examples ensure docs and behavior stay in sync.
+
+## Why scheduler?
+
+Go has excellent low-level scheduling libraries, but defining real-world schedules often turns into a maze of cron strings, conditionals, and glue code.
+
+`scheduler` provides a Laravel-style fluent API on top of gocron that lets you describe **when**, **how**, and **under what conditions** a job should run — without hiding what’s actually happening.
+
+Everything remains explicit, testable, and inspectable, while staying pleasant to read and maintain.
+
+## Example
+
+## Example
+
+```go
+scheduler.NewJobBuilder(s).
+    Name("reports:generate").
+    Weekdays().
+    Between("09:00", "17:00").
+    WithoutOverlapping().
+    DailyAt("10:30").
+    Do(func() {
+    generateReports()
+})
+``
 
 ## Runnable examples
 
