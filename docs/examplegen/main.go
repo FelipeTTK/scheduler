@@ -391,6 +391,9 @@ func writeMain(base string, fd *FuncDoc, importPath string) error {
 		if strings.Contains(ex.Code, "context.") {
 			imports["context"] = true
 		}
+		if strings.Contains(ex.Code, "redis.") {
+			imports["github.com/redis/go-redis/v9"] = true
+		}
 		if strings.Contains(ex.Code, "time.") {
 			imports["time"] = true
 		}

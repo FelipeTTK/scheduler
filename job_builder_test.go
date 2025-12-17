@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync/atomic"
 	"testing"
@@ -678,4 +679,209 @@ func TestAddWhenSkipComposition(t *testing.T) {
 	f.Skip(func() bool { return false })
 	f.Skip(func() bool { return true })
 	require.True(t, f.skipFunc())
+}
+
+func TestCommandRunnerFunc_Run(t *testing.T) {
+	var called bool
+	runner := CommandRunnerFunc(func(_ context.Context, exe string, args []string) error {
+		called = true
+		require.Equal(t, "bin", exe)
+		require.Equal(t, []string{"a", "b"}, args)
+		return nil
+	})
+
+	require.NoError(t, runner.Run(context.Background(), "bin", []string{"a", "b"}))
+	require.True(t, called)
+}
+
+func TestLockerFuncAndLockFunc(t *testing.T) {
+	var locked bool
+
+	locker := LockerFunc(func(ctx context.Context, key string) (gocron.Lock, error) {
+		locked = true
+		require.Equal(t, "job", key)
+		return LockFunc(func(context.Context) error { return nil }), nil
+	})
+
+	lock, err := locker.Lock(context.Background(), "job")
+	require.NoError(t, err)
+	require.True(t, locked)
+	require.NoError(t, lock.Unlock(context.Background()))
+}
+
+func TestBetweenInvalidInputs(t *testing.T) {
+	b := NewJobBuilder(nil)
+	b.Between("bad", "10:00")
+	require.Error(t, b.Error())
+
+	b = NewJobBuilder(nil)
+	b.UnlessBetween("09:00", "bad")
+	require.Error(t, b.Error())
+}
+
+func TestTimeInRangeCrossesMidnightEarly(t *testing.T) {
+	loc := time.UTC
+	now := time.Date(2024, 1, 2, 23, 0, 0, 0, loc) // after start window
+	require.True(t, timeInRange(now, 22, 0, 6, 0))
+}
+
+func TestRenderHelpersEdges(t *testing.T) {
+	require.Equal(t, jobStyleMissingInfo.Render("unknown"), renderJobType(""))
+	require.Equal(t, jobStyleSchedule.Render("every 1s"), renderSchedule("1s", jobScheduleInterval))
+	require.Equal(t, jobStyleMissingInfo.Render("-"), renderTarget("", jobTargetCommand, "name"))
+	require.Equal(t, jobStyleMissingInfo.Render("-"), renderTags([]string{"cron=*"}))
+
+	sched, kind := scheduleFromTags([]string{"foo=bar"})
+	require.Equal(t, "", sched)
+	require.Equal(t, jobScheduleUnknown, kind)
+
+	entry := &jobEntry{Name: "", Target: "", NextRun: time.Time{}}
+	require.Equal(t, "(unnamed)", nameForEntry(entry))
+	require.Equal(t, 1, maxRelativeWidth([]*jobEntry{entry}))
+}
+
+func TestAddWhenSkipNilAndCombine(t *testing.T) {
+	b := NewJobBuilder(nil)
+	b.addWhen(nil)
+	require.Nil(t, b.whenFunc)
+
+	first := false
+	b.addWhen(func() bool { first = true; return true })
+	require.NotNil(t, b.whenFunc)
+
+	second := false
+	b.addWhen(func() bool { second = true; return false })
+	require.False(t, b.whenFunc())
+	require.True(t, first)
+	require.True(t, second)
+
+	b.addSkip(nil)
+	require.Nil(t, b.skipFunc)
+
+	b.addSkip(func() bool { return true })
+	require.True(t, b.skipFunc())
+
+	b.addSkip(func() bool { return false })
+	require.True(t, b.skipFunc())
+}
+
+func TestLocationInvalidZoneFallsBack(t *testing.T) {
+	b := NewJobBuilder(nil).Timezone("Invalid/Zone")
+	require.Equal(t, time.Local, b.location())
+}
+
+func TestFriendlyFuncNameNil(t *testing.T) {
+	var f func()
+	require.Equal(t, "", friendlyFuncName(f))
+}
+
+func TestBetweenUnlessBetweenValid(t *testing.T) {
+	fixed := func() time.Time { return time.Date(2024, 1, 2, 1, 30, 0, 0, time.UTC) }
+
+	b := NewJobBuilder(nil).Timezone("UTC").WithNowFunc(fixed).Between("01:00", "02:00")
+	require.NoError(t, b.Error())
+	require.NotNil(t, b.whenFunc)
+	// 01:30 is inside window
+	require.True(t, b.whenFunc())
+
+	b = NewJobBuilder(nil).Timezone("UTC").WithNowFunc(fixed).UnlessBetween("22:00", "23:00")
+	require.NoError(t, b.Error())
+	require.NotNil(t, b.skipFunc)
+	// 01:30 is outside skip window
+	require.False(t, b.skipFunc())
+}
+
+func TestCommandRunInBackgroundBranch(t *testing.T) {
+	t.Setenv("SCHEDULER_TEST_NO_EXEC", "1")
+	b := NewJobBuilder(newTestScheduler(clockwork.NewFakeClock()))
+	b.RunInBackground().Cron("0 0 * * *").Command("noop")
+	require.NotNil(t, b.Job())
+}
+
+func TestDoWithFiltersSkipping(t *testing.T) {
+	t.Setenv("APP_ENV", "local")
+	s := newTestScheduler(clockwork.NewFakeClock())
+	defer s.Shutdown()
+
+	b := NewJobBuilder(s).Environments("production").EverySecond().Do(func() {})
+	require.Nil(t, b.Job())
+
+	b = NewJobBuilder(s).EverySecond().When(func() bool { return false }).Do(func() {})
+	require.Nil(t, b.Job())
+}
+
+func TestDoWithoutSchedule(t *testing.T) {
+	b := NewJobBuilder(nil)
+	b.Do(func() {})
+	require.Error(t, b.Error())
+}
+
+func TestRecordJobDefaults(t *testing.T) {
+	b := NewJobBuilder(nil)
+	b.targetKind = ""
+	b.jobMetadata = nil
+
+	j := stubJob{id: uuid.New()}
+	b.recordJob(j, sampleHandler)
+
+	meta := b.JobMetadata()
+	require.Len(t, meta, 1)
+	for _, v := range meta {
+		require.Equal(t, string(jobTargetFunction), v.TargetKind)
+		require.Equal(t, "scheduler.sampleHandler", v.Handler)
+	}
+}
+
+type stubSchedulerAdapter struct {
+	jobs []gocron.Job
+}
+
+func (s stubSchedulerAdapter) NewJob(job gocron.JobDefinition, task gocron.Task, options ...gocron.JobOption) (gocron.Job, error) {
+	return nil, errors.New("not implemented")
+}
+func (s stubSchedulerAdapter) Start()             {}
+func (s stubSchedulerAdapter) Shutdown() error    { return nil }
+func (s stubSchedulerAdapter) Jobs() []gocron.Job { return s.jobs }
+
+func TestGetJobsListCoverage(t *testing.T) {
+	var nilBuilder *JobBuilder
+	require.Nil(t, nilBuilder.getJobsList())
+
+	cronJob := stubJob{
+		id:   uuid.New(),
+		name: "",
+		tags: []string{"cron=0 0 * * *"},
+	}
+	b := NewJobBuilder(nil)
+	b.scheduler = stubSchedulerAdapter{jobs: []gocron.Job{cronJob}}
+	entries := b.getJobsList()
+	require.Len(t, entries, 1)
+	require.Equal(t, jobScheduleCron, entries[0].ScheduleType)
+	require.Equal(t, "(unnamed)", entries[0].Name)
+}
+
+func TestRenderHelpersMoreBranches(t *testing.T) {
+	require.Equal(t, jobStyleSchedule.Render("cron 0 0 * * *"), renderSchedule("0 0 * * *", jobScheduleCron))
+	require.Equal(t, jobStyleSchedule.Render("foo"), renderSchedule("foo", jobScheduleUnknown))
+	require.Equal(t, jobStyleMissingInfo.Render("-"), renderTarget("name", jobTargetCommand, "name"))
+	require.Equal(t, jobStyleMissingInfo.Render("-"), renderSchedule("", jobScheduleUnknown))
+
+	require.Contains(t, renderNextRunWithWidth(time.Time{}, errors.New("boom"), 5), "boom")
+
+	entry := &jobEntry{
+		Name:    "a",
+		NextRun: time.Now().Add(2 * time.Hour),
+	}
+	require.Greater(t, maxRelativeWidth([]*jobEntry{nil, entry}), 0)
+
+	errEntry := &jobEntry{NextRunErr: errors.New("fail")}
+	require.Equal(t, 1, maxRelativeWidth([]*jobEntry{errEntry}))
+}
+
+func TestFriendlyFuncNameAnonAndLocationValid(t *testing.T) {
+	name := friendlyFuncName(func() {})
+	require.Contains(t, name, "anon func")
+
+	loc := NewJobBuilder(nil).Timezone("America/New_York").location()
+	require.Equal(t, "America/New_York", loc.String())
 }

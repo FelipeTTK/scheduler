@@ -5,11 +5,9 @@ package main
 
 import (
 	"context"
-	"time"
-
-	"github.com/redis/go-redis/v9"
-
 	"github.com/goforj/scheduler"
+	"github.com/redis/go-redis/v9"
+	"time"
 )
 
 func main() {
