@@ -32,19 +32,52 @@ This guarantees all examples are valid, up-to-date, and remain functional as the
 
 | Group | Functions |
 |------:|-----------|
+| **Adapters** | [Lock](#lock) [Run](#run) [Unlock](#unlock) |
 | **Commands** | [Command](#command) |
 | **Concurrency** | [WithoutOverlapping](#withoutoverlapping) [WithoutOverlappingWithLocker](#withoutoverlappingwithlocker) |
 | **Configuration** | [Timezone](#timezone) [WithCommandRunner](#withcommandrunner) [WithNowFunc](#withnowfunc) |
 | **Construction** | [NewJobBuilder](#newjobbuilder) |
 | **Diagnostics** | [CronExpr](#cronexpr) [Error](#error) [Job](#job) [PrintJobsList](#printjobslist) |
 | **Execution** | [RunInBackground](#runinbackground) |
-| **Filters** | [Between](#between) [Days](#days) [Environments](#environments) [Skip](#skip) [UnlessBetween](#unlessbetween) [Weekdays](#weekdays) [Weekends](#weekends) [When](#when) |
+| **Filters** | [Between](#between) [Days](#days) [Environments](#environments) [Fridays](#fridays) [Mondays](#mondays) [Saturdays](#saturdays) [Skip](#skip) [Sundays](#sundays) [Thursdays](#thursdays) [Tuesdays](#tuesdays) [UnlessBetween](#unlessbetween) [Wednesdays](#wednesdays) [Weekdays](#weekdays) [Weekends](#weekends) [When](#when) |
 | **Hooks** | [After](#after) [Before](#before) [OnFailure](#onfailure) [OnSuccess](#onsuccess) |
+| **Locking** | [NewRedisLocker](#newredislocker) |
 | **Metadata** | [JobMetadata](#jobmetadata) [Name](#name) |
-| **Other** | [Fridays](#fridays) [Lock](#lock) [Mondays](#mondays) [NewRedisLocker](#newredislocker) [Run](#run) [Saturdays](#saturdays) [Sundays](#sundays) [Thursdays](#thursdays) [Tuesdays](#tuesdays) [Unlock](#unlock) [Wednesdays](#wednesdays) |
 | **Scheduling** | [Cron](#cron) [Daily](#daily) [DailyAt](#dailyat) [DaysOfMonth](#daysofmonth) [Do](#do) [Every](#every) [EveryFifteenMinutes](#everyfifteenminutes) [EveryFifteenSeconds](#everyfifteenseconds) [EveryFiveMinutes](#everyfiveminutes) [EveryFiveSeconds](#everyfiveseconds) [EveryFourHours](#everyfourhours) [EveryFourMinutes](#everyfourminutes) [EveryMinute](#everyminute) [EveryOddHour](#everyoddhour) [EverySecond](#everysecond) [EverySixHours](#everysixhours) [EveryTenMinutes](#everytenminutes) [EveryTenSeconds](#everytenseconds) [EveryThirtyMinutes](#everythirtyminutes) [EveryThirtySeconds](#everythirtyseconds) [EveryThreeHours](#everythreehours) [EveryThreeMinutes](#everythreeminutes) [EveryTwentySeconds](#everytwentyseconds) [EveryTwoHours](#everytwohours) [EveryTwoMinutes](#everytwominutes) [EveryTwoSeconds](#everytwoseconds) [Hourly](#hourly) [HourlyAt](#hourlyat) [Hours](#hours) [LastDayOfMonth](#lastdayofmonth) [Minutes](#minutes) [Monthly](#monthly) [MonthlyOn](#monthlyon) [Quarterly](#quarterly) [QuarterlyOn](#quarterlyon) [Seconds](#seconds) [TwiceDaily](#twicedaily) [TwiceDailyAt](#twicedailyat) [TwiceMonthly](#twicemonthly) [Weekly](#weekly) [WeeklyOn](#weeklyon) [Yearly](#yearly) [YearlyOn](#yearlyon) |
 | **State management** | [RetainState](#retainstate) |
 
+
+## Adapters
+
+### <a id="lock"></a>Lock
+
+Lock invokes the underlying function.
+
+_Example: acquire a lock_
+
+```go
+client := redis.NewClient(&redis.Options{})
+locker := scheduler.NewRedisLocker(client, time.Minute)
+lock, _ := locker.Lock(context.Background(), "job")
+_ = lock.Unlock(context.Background())
+```
+
+### <a id="run"></a>Run
+
+Run executes the underlying function.
+
+_Example: execute the wrapped function_
+
+```go
+runner := scheduler.CommandRunnerFunc(func(ctx context.Context, exe string, args []string) error {
+	return nil
+})
+_ = runner.Run(context.Background(), "echo", []string{"hi"})
+```
+
+### <a id="unlock"></a>Unlock
+
+Unlock invokes the underlying function.
 
 ## Commands
 
@@ -269,6 +302,18 @@ _Example: only register in production_
 scheduler.NewJobBuilder(nil).Environments("production").Daily()
 ```
 
+### <a id="fridays"></a>Fridays
+
+Fridays limits the job to Fridays.
+
+### <a id="mondays"></a>Mondays
+
+Mondays limits the job to Mondays.
+
+### <a id="saturdays"></a>Saturdays
+
+Saturdays limits the job to Saturdays.
+
 ### <a id="skip"></a>Skip
 
 Skip prevents scheduling the job if the provided condition returns true.
@@ -282,6 +327,18 @@ scheduler.NewJobBuilder(nil).
 	Daily()
 ```
 
+### <a id="sundays"></a>Sundays
+
+Sundays limits the job to Sundays.
+
+### <a id="thursdays"></a>Thursdays
+
+Thursdays limits the job to Thursdays.
+
+### <a id="tuesdays"></a>Tuesdays
+
+Tuesdays limits the job to Tuesdays.
+
 ### <a id="unlessbetween"></a>UnlessBetween
 
 UnlessBetween prevents the job from running between the provided HH:MM times.
@@ -293,6 +350,10 @@ scheduler.NewJobBuilder(nil).
 	UnlessBetween("22:00", "06:00").
 	EveryMinute()
 ```
+
+### <a id="wednesdays"></a>Wednesdays
+
+Wednesdays limits the job to Wednesdays.
 
 ### <a id="weekdays"></a>Weekdays
 
@@ -377,6 +438,20 @@ scheduler.NewJobBuilder(nil).
 	Daily()
 ```
 
+## Locking
+
+### <a id="newredislocker"></a>NewRedisLocker
+
+NewRedisLocker creates a RedisLocker with a client and TTL.
+
+_Example: create a redis-backed locker_
+
+```go
+client := redis.NewClient(&redis.Options{}) // replace with your client
+locker := scheduler.NewRedisLocker(client, time.Minute)
+_, _ = locker.Lock(context.Background(), "job")
+```
+
 ## Metadata
 
 ### <a id="jobmetadata"></a>JobMetadata
@@ -408,52 +483,6 @@ scheduler.NewJobBuilder(nil).
 	Name("cache:refresh").
 	HourlyAt(15)
 ```
-
-## Other
-
-### <a id="fridays"></a>Fridays
-
-Fridays limits the job to Fridays.
-
-### <a id="lock"></a>Lock
-
-Lock invokes the underlying function.
-
-### <a id="mondays"></a>Mondays
-
-Mondays limits the job to Mondays.
-
-### <a id="newredislocker"></a>NewRedisLocker
-
-NewRedisLocker creates a RedisLocker with a client and TTL.
-
-### <a id="run"></a>Run
-
-Run executes the underlying function.
-
-### <a id="saturdays"></a>Saturdays
-
-Saturdays limits the job to Saturdays.
-
-### <a id="sundays"></a>Sundays
-
-Sundays limits the job to Sundays.
-
-### <a id="thursdays"></a>Thursdays
-
-Thursdays limits the job to Thursdays.
-
-### <a id="tuesdays"></a>Tuesdays
-
-Tuesdays limits the job to Tuesdays.
-
-### <a id="unlock"></a>Unlock
-
-Unlock invokes the underlying function.
-
-### <a id="wednesdays"></a>Wednesdays
-
-Wednesdays limits the job to Wednesdays.
 
 ## Scheduling
 

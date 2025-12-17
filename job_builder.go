@@ -26,9 +26,25 @@ type CommandRunner interface {
 }
 
 // CommandRunnerFunc adapts a function to satisfy CommandRunner.
+// @group Adapters
+//
+// Example: wrap a function as a runner
+//
+//	runner := scheduler.CommandRunnerFunc(func(ctx context.Context, exe string, args []string) error {
+//		return nil
+//	})
+//	_ = runner.Run(context.Background(), "/bin/true", []string{})
 type CommandRunnerFunc func(ctx context.Context, exe string, args []string) error
 
 // Run executes the underlying function.
+// @group Adapters
+//
+// Example: execute the wrapped function
+//
+//	runner := scheduler.CommandRunnerFunc(func(ctx context.Context, exe string, args []string) error {
+//		return nil
+//	})
+//	_ = runner.Run(context.Background(), "echo", []string{"hi"})
 func (f CommandRunnerFunc) Run(ctx context.Context, exe string, args []string) error {
 	return f(ctx, exe, args)
 }
@@ -1193,24 +1209,31 @@ func (j *JobBuilder) Weekends() *JobBuilder {
 }
 
 // Sundays limits the job to Sundays.
+// @group Filters
 func (j *JobBuilder) Sundays() *JobBuilder { return j.days(time.Sunday) }
 
 // Mondays limits the job to Mondays.
+// @group Filters
 func (j *JobBuilder) Mondays() *JobBuilder { return j.days(time.Monday) }
 
 // Tuesdays limits the job to Tuesdays.
+// @group Filters
 func (j *JobBuilder) Tuesdays() *JobBuilder { return j.days(time.Tuesday) }
 
 // Wednesdays limits the job to Wednesdays.
+// @group Filters
 func (j *JobBuilder) Wednesdays() *JobBuilder { return j.days(time.Wednesday) }
 
 // Thursdays limits the job to Thursdays.
+// @group Filters
 func (j *JobBuilder) Thursdays() *JobBuilder { return j.days(time.Thursday) }
 
 // Fridays limits the job to Fridays.
+// @group Filters
 func (j *JobBuilder) Fridays() *JobBuilder { return j.days(time.Friday) }
 
 // Saturdays limits the job to Saturdays.
+// @group Filters
 func (j *JobBuilder) Saturdays() *JobBuilder { return j.days(time.Saturday) }
 
 // Days limits the job to a specific set of weekdays.
@@ -1594,17 +1617,33 @@ type redisLockerClient interface {
 }
 
 // LockerFunc adapts a function to satisfy gocron.Locker.
+// @group Adapters
+//
+// Example: build a locker from a function
+//
+//	locker := scheduler.LockerFunc(func(ctx context.Context, key string) (gocron.Lock, error) {
+//		return scheduler.LockFunc(func(context.Context) error { return nil }), nil
+//	})
+//	_, _ = locker.Lock(context.Background(), "job")
 type LockerFunc func(ctx context.Context, key string) (gocron.Lock, error)
 
 // Lock invokes the underlying function.
+// @group Adapters
 func (f LockerFunc) Lock(ctx context.Context, key string) (gocron.Lock, error) {
 	return f(ctx, key)
 }
 
 // LockFunc adapts a function to satisfy gocron.Lock.
+// @group Adapters
+//
+// Example: unlock via a function
+//
+//	lock := scheduler.LockFunc(func(context.Context) error { return nil })
+//	_ = lock.Unlock(context.Background())
 type LockFunc func(ctx context.Context) error
 
 // Unlock invokes the underlying function.
+// @group Adapters
 func (f LockFunc) Unlock(ctx context.Context) error {
 	return f(ctx)
 }
@@ -1617,11 +1656,26 @@ type RedisLocker struct {
 }
 
 // NewRedisLocker creates a RedisLocker with a client and TTL.
+// @group Locking
+//
+// Example: create a redis-backed locker
+//
+//	client := redis.NewClient(&redis.Options{}) // replace with your client
+//	locker := scheduler.NewRedisLocker(client, time.Minute)
+//	_, _ = locker.Lock(context.Background(), "job")
 func NewRedisLocker(client redisLockerClient, ttl time.Duration) *RedisLocker {
 	return &RedisLocker{client: client, ttl: ttl}
 }
 
 // Lock obtains a lock for the job name.
+// @group Locking
+//
+// Example: acquire a lock
+//
+//	client := redis.NewClient(&redis.Options{})
+//	locker := scheduler.NewRedisLocker(client, time.Minute)
+//	lock, _ := locker.Lock(context.Background(), "job")
+//	_ = lock.Unlock(context.Background())
 func (l *RedisLocker) Lock(ctx context.Context, key string) (gocron.Lock, error) {
 	locked, err := l.client.SetNX(ctx, l.lockKey(key), "1", l.ttl).Result()
 	if err != nil {
@@ -1646,6 +1700,8 @@ type redisLock struct {
 	key    string
 }
 
+// Unlock releases the redis-backed lock.
+// @group Locking
 func (l *redisLock) Unlock(ctx context.Context) error {
 	_, err := l.client.Del(ctx, l.key).Result()
 	return err
