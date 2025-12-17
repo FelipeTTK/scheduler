@@ -31,7 +31,7 @@
 
 Go has excellent low-level scheduling libraries, but defining real-world schedules often turns into a maze of cron strings, conditionals, and glue code.
 
-`scheduler` provides a Laravel-style fluent API on top of gocron that lets you describe **when**, **how**, and **under what conditions** a job should run — without hiding what’s actually happening.
+`scheduler` provides a Laravel-style fluent API on top of gocron that lets you describe **when**, **how**, and **under what conditions** a job should run - without hiding what’s actually happening.
 
 Everything remains explicit, testable, and inspectable, while staying pleasant to read and maintain.
 
