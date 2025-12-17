@@ -27,7 +27,29 @@
 - Command execution helper for running CLI tasks with background mode and env-aware tagging.
 - Auto-generated, compile-tested examples ensure docs and behavior stay in sync.
 
-## Quick example: list jobs as an ASCII table
+## Why scheduler?
+
+Go has excellent low-level scheduling libraries, but defining real-world schedules often turns into a maze of cron strings, conditionals, and glue code.
+
+`scheduler` provides a Laravel-style fluent API on top of gocron that lets you describe **when**, **how**, and **under what conditions** a job should run — without hiding what’s actually happening.
+
+Everything remains explicit, testable, and inspectable, while staying pleasant to read and maintain.
+
+## Example
+
+```go
+scheduler.NewJobBuilder(s).
+    Name("reports:generate").
+    Weekdays().
+    Between("09:00", "17:00").
+    WithoutOverlapping().
+    DailyAt("10:30").
+    Do(func() {
+    generateReports()
+})
+```
+
+## List jobs as an ASCII table
 
 ```go
 package main
@@ -63,28 +85,6 @@ Example output:
 | hello:world    | command  | every 1h       | -       | in 1h  | env=dev, args="hour" |
 | cleanup        | function | every 1m       | cleanup | in 1m  | env=dev              |
 +----------------+----------+----------------+---------+--------+----------------------+
-```
-
-## Why scheduler?
-
-Go has excellent low-level scheduling libraries, but defining real-world schedules often turns into a maze of cron strings, conditionals, and glue code.
-
-`scheduler` provides a Laravel-style fluent API on top of gocron that lets you describe **when**, **how**, and **under what conditions** a job should run — without hiding what’s actually happening.
-
-Everything remains explicit, testable, and inspectable, while staying pleasant to read and maintain.
-
-## Example
-
-```go
-scheduler.NewJobBuilder(s).
-    Name("reports:generate").
-    Weekdays().
-    Between("09:00", "17:00").
-    WithoutOverlapping().
-    DailyAt("10:30").
-    Do(func() {
-    generateReports()
-})
 ```
 
 ## Runnable examples
