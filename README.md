@@ -124,8 +124,6 @@ This guarantees all examples are valid, up-to-date, and remain functional as the
 
 Lock invokes the underlying function.
 
-_Example: acquire a lock_
-
 ```go
 client := redis.NewClient(&redis.Options{})
 locker := scheduler.NewRedisLocker(client, time.Minute)
@@ -136,8 +134,6 @@ _ = lock.Unlock(context.Background())
 ### <a id="run"></a>Run
 
 Run executes the underlying function.
-
-_Example: execute the wrapped function_
 
 ```go
 runner := scheduler.CommandRunnerFunc(func(ctx context.Context, exe string, args []string) error {
@@ -156,8 +152,6 @@ Unlock invokes the underlying function.
 
 Command executes the current binary with the given subcommand and variadic args.
 
-_Example: run a CLI subcommand on schedule_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -174,8 +168,6 @@ scheduler.NewJobBuilder(s).
 
 WithoutOverlapping ensures the job does not run concurrently.
 
-_Example: prevent overlapping runs of a slow task_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -190,8 +182,6 @@ scheduler.NewJobBuilder(s).
 ### <a id="withoutoverlappingwithlocker"></a>WithoutOverlappingWithLocker
 
 WithoutOverlappingWithLocker ensures the job does not run concurrently across distributed systems using the provided locker.
-
-_Example: use a distributed locker_
 
 ```go
 locker := scheduler.LockerFunc(func(ctx context.Context, key string) (gocron.Lock, error) {
@@ -214,8 +204,6 @@ scheduler.NewJobBuilder(s).
 
 Timezone sets a timezone string for the job (not currently applied to gocron Scheduler).
 
-_Example: tag jobs with a timezone_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	Timezone("America/New_York").
@@ -225,8 +213,6 @@ scheduler.NewJobBuilder(nil).
 ### <a id="withcommandrunner"></a>WithCommandRunner
 
 WithCommandRunner overrides command execution (default: exec.CommandContext).
-
-_Example: swap in a custom runner_
 
 ```go
 runner := scheduler.CommandRunnerFunc(func(_ context.Context, exe string, args []string) error {
@@ -243,8 +229,6 @@ fmt.Printf("%T\n", builder)
 
 WithNowFunc overrides current time (default: time.Now). Useful for tests.
 
-_Example: freeze time for predicates_
-
 ```go
 fixed := func() time.Time { return time.Unix(0, 0) }
 scheduler.NewJobBuilder(nil).WithNowFunc(fixed)
@@ -255,8 +239,6 @@ scheduler.NewJobBuilder(nil).WithNowFunc(fixed)
 ### <a id="newjobbuilder"></a>NewJobBuilder
 
 NewJobBuilder creates a new JobBuilder with the provided scheduler.
-
-_Example: create a builder and schedule a heartbeat_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -271,8 +253,6 @@ scheduler.NewJobBuilder(s).EverySecond().Do(func() {})
 
 CronExpr returns the cron expression string configured for this job.
 
-_Example: inspect the stored cron expression_
-
 ```go
 builder := scheduler.NewJobBuilder(nil).Cron("0 9 * * *")
 fmt.Println(builder.CronExpr())
@@ -282,8 +262,6 @@ fmt.Println(builder.CronExpr())
 
 Error returns the error if any occurred during job scheduling.
 
-_Example: validate a malformed schedule_
-
 ```go
 builder := scheduler.NewJobBuilder(nil).DailyAt("bad")
 fmt.Println(builder.Error())
@@ -292,8 +270,6 @@ fmt.Println(builder.Error())
 ### <a id="job"></a>Job
 
 Job returns the last scheduled gocron.Job instance, if available.
-
-_Example: capture the last job handle_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -307,8 +283,6 @@ fmt.Println(b.Job() != nil)
 ### <a id="printjobslist"></a>PrintJobsList
 
 PrintJobsList renders and prints the scheduler job table to stdout.
-
-_Example: print current jobs_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -329,8 +303,6 @@ scheduler.NewJobBuilder(s).PrintJobsList()
 
 RunInBackground runs command/exec tasks in a goroutine.
 
-_Example: allow command jobs to run async_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	RunInBackground().
@@ -343,8 +315,6 @@ scheduler.NewJobBuilder(nil).
 
 Between limits the job to run between the provided HH:MM times (inclusive).
 
-_Example: allow execution during business hours_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	Between("09:00", "17:00").
@@ -355,8 +325,6 @@ scheduler.NewJobBuilder(nil).
 
 Days limits the job to a specific set of weekdays.
 
-_Example: pick custom weekdays_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	Days(time.Monday, time.Wednesday, time.Friday).
@@ -366,8 +334,6 @@ scheduler.NewJobBuilder(nil).
 ### <a id="environments"></a>Environments
 
 Environments restricts job registration to specific environment names (e.g. "production", "staging").
-
-_Example: only register in production_
 
 ```go
 scheduler.NewJobBuilder(nil).Environments("production").Daily()
@@ -388,8 +354,6 @@ Saturdays limits the job to Saturdays.
 ### <a id="skip"></a>Skip
 
 Skip prevents scheduling the job if the provided condition returns true.
-
-_Example: suppress jobs based on a switch_
 
 ```go
 enabled := false
@@ -414,8 +378,6 @@ Tuesdays limits the job to Tuesdays.
 
 UnlessBetween prevents the job from running between the provided HH:MM times.
 
-_Example: pause execution overnight_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	UnlessBetween("22:00", "06:00").
@@ -430,8 +392,6 @@ Wednesdays limits the job to Wednesdays.
 
 Weekdays limits the job to run only on weekdays (Mon-Fri).
 
-_Example: weekday-only execution_
-
 ```go
 scheduler.NewJobBuilder(nil).Weekdays().DailyAt("09:00")
 ```
@@ -440,8 +400,6 @@ scheduler.NewJobBuilder(nil).Weekdays().DailyAt("09:00")
 
 Weekends limits the job to run only on weekends (Sat-Sun).
 
-_Example: weekend-only execution_
-
 ```go
 scheduler.NewJobBuilder(nil).Weekends().DailyAt("10:00")
 ```
@@ -449,8 +407,6 @@ scheduler.NewJobBuilder(nil).Weekends().DailyAt("10:00")
 ### <a id="when"></a>When
 
 When only schedules the job if the provided condition returns true.
-
-_Example: guard scheduling with a flag_
 
 ```go
 flag := true
@@ -465,8 +421,6 @@ scheduler.NewJobBuilder(nil).
 
 After sets a hook to run after task execution.
 
-_Example: add an after hook_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	After(func() { println("after") }).
@@ -476,8 +430,6 @@ scheduler.NewJobBuilder(nil).
 ### <a id="before"></a>Before
 
 Before sets a hook to run before task execution.
-
-_Example: add a before hook_
 
 ```go
 scheduler.NewJobBuilder(nil).
@@ -489,8 +441,6 @@ scheduler.NewJobBuilder(nil).
 
 OnFailure sets a hook to run after failed task execution.
 
-_Example: record failures_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	OnFailure(func() { println("failure") }).
@@ -500,8 +450,6 @@ scheduler.NewJobBuilder(nil).
 ### <a id="onsuccess"></a>OnSuccess
 
 OnSuccess sets a hook to run after successful task execution.
-
-_Example: record success_
 
 ```go
 scheduler.NewJobBuilder(nil).
@@ -515,8 +463,6 @@ scheduler.NewJobBuilder(nil).
 
 NewRedisLocker creates a RedisLocker with a client and TTL.
 
-_Example: create a redis-backed locker_
-
 ```go
 client := redis.NewClient(&redis.Options{}) // replace with your client
 locker := scheduler.NewRedisLocker(client, time.Minute)
@@ -528,8 +474,6 @@ _, _ = locker.Lock(context.Background(), "job")
 ### <a id="jobmetadata"></a>JobMetadata
 
 JobMetadata returns a copy of the tracked job metadata keyed by job ID.
-
-_Example: inspect scheduled jobs_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -547,8 +491,6 @@ for id, meta := range b.JobMetadata() {
 
 Name sets an explicit job name.
 
-_Example: label a job for logging_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	Name("cache:refresh").
@@ -561,8 +503,6 @@ scheduler.NewJobBuilder(nil).
 
 Cron sets the cron expression for the job.
 
-_Example: configure a cron expression_
-
 ```go
 builder := scheduler.NewJobBuilder(nil).Cron("15 3 * * *")
 fmt.Println(builder.CronExpr())
@@ -572,8 +512,6 @@ fmt.Println(builder.CronExpr())
 
 Daily schedules the job to run once per day at midnight.
 
-_Example: nightly task_
-
 ```go
 scheduler.NewJobBuilder(nil).Daily()
 ```
@@ -581,8 +519,6 @@ scheduler.NewJobBuilder(nil).Daily()
 ### <a id="dailyat"></a>DailyAt
 
 DailyAt schedules the job to run daily at a specific time (e.g., "13:00").
-
-_Example: run at lunch time daily_
 
 ```go
 scheduler.NewJobBuilder(nil).DailyAt("12:30")
@@ -592,8 +528,6 @@ scheduler.NewJobBuilder(nil).DailyAt("12:30")
 
 DaysOfMonth schedules the job to run on specific days of the month at a given time.
 
-_Example: run on the 5th and 20th of each month_
-
 ```go
 scheduler.NewJobBuilder(nil).DaysOfMonth([]int{5, 20}, "07:15")
 ```
@@ -601,8 +535,6 @@ scheduler.NewJobBuilder(nil).DaysOfMonth([]int{5, 20}, "07:15")
 ### <a id="do"></a>Do
 
 Do schedules the job with the provided task function.
-
-_Example: create a named cron job_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -619,8 +551,6 @@ Do(func() {})
 
 Every schedules a job to run every X seconds, minutes, or hours.
 
-_Example: fluently choose an interval_
-
 ```go
 scheduler.NewJobBuilder(nil).
 	Every(10).
@@ -630,8 +560,6 @@ scheduler.NewJobBuilder(nil).
 ### <a id="everyfifteenminutes"></a>EveryFifteenMinutes
 
 EveryFifteenMinutes schedules the job to run every 15 minutes.
-
-_Example: run every fifteen minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -645,8 +573,6 @@ scheduler.NewJobBuilder(s).EveryFifteenMinutes().Do(func() {})
 
 EveryFifteenSeconds schedules the job to run every 15 seconds.
 
-_Example: run at fifteen-second cadence_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -658,8 +584,6 @@ scheduler.NewJobBuilder(s).EveryFifteenSeconds().Do(func() {})
 ### <a id="everyfiveminutes"></a>EveryFiveMinutes
 
 EveryFiveMinutes schedules the job to run every 5 minutes.
-
-_Example: run every five minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -673,8 +597,6 @@ scheduler.NewJobBuilder(s).EveryFiveMinutes().Do(func() {})
 
 EveryFiveSeconds schedules the job to run every 5 seconds.
 
-_Example: space out work every five seconds_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -687,8 +609,6 @@ scheduler.NewJobBuilder(s).EveryFiveSeconds().Do(func() {})
 
 EveryFourHours schedules the job to run every four hours at the specified minute.
 
-_Example: run every four hours_
-
 ```go
 scheduler.NewJobBuilder(nil).EveryFourHours(25)
 ```
@@ -696,8 +616,6 @@ scheduler.NewJobBuilder(nil).EveryFourHours(25)
 ### <a id="everyfourminutes"></a>EveryFourMinutes
 
 EveryFourMinutes schedules the job to run every 4 minutes.
-
-_Example: run every four minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -711,8 +629,6 @@ scheduler.NewJobBuilder(s).EveryFourMinutes().Do(func() {})
 
 EveryMinute schedules the job to run every 1 minute.
 
-_Example: run a task each minute_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -725,8 +641,6 @@ scheduler.NewJobBuilder(s).EveryMinute().Do(func() {})
 
 EveryOddHour schedules the job to run every odd-numbered hour at the specified minute.
 
-_Example: run every odd hour_
-
 ```go
 scheduler.NewJobBuilder(nil).EveryOddHour(10)
 ```
@@ -734,8 +648,6 @@ scheduler.NewJobBuilder(nil).EveryOddHour(10)
 ### <a id="everysecond"></a>EverySecond
 
 EverySecond schedules the job to run every 1 second.
-
-_Example: heartbeat job each second_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -749,8 +661,6 @@ scheduler.NewJobBuilder(s).EverySecond().Do(func() {})
 
 EverySixHours schedules the job to run every six hours at the specified minute.
 
-_Example: run every six hours_
-
 ```go
 scheduler.NewJobBuilder(nil).EverySixHours(30)
 ```
@@ -758,8 +668,6 @@ scheduler.NewJobBuilder(nil).EverySixHours(30)
 ### <a id="everytenminutes"></a>EveryTenMinutes
 
 EveryTenMinutes schedules the job to run every 10 minutes.
-
-_Example: run every ten minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -773,8 +681,6 @@ scheduler.NewJobBuilder(s).EveryTenMinutes().Do(func() {})
 
 EveryTenSeconds schedules the job to run every 10 seconds.
 
-_Example: poll every ten seconds_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -786,8 +692,6 @@ scheduler.NewJobBuilder(s).EveryTenSeconds().Do(func() {})
 ### <a id="everythirtyminutes"></a>EveryThirtyMinutes
 
 EveryThirtyMinutes schedules the job to run every 30 minutes.
-
-_Example: run every thirty minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -801,8 +705,6 @@ scheduler.NewJobBuilder(s).EveryThirtyMinutes().Do(func() {})
 
 EveryThirtySeconds schedules the job to run every 30 seconds.
 
-_Example: execute every thirty seconds_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -815,8 +717,6 @@ scheduler.NewJobBuilder(s).EveryThirtySeconds().Do(func() {})
 
 EveryThreeHours schedules the job to run every three hours at the specified minute.
 
-_Example: run every three hours_
-
 ```go
 scheduler.NewJobBuilder(nil).EveryThreeHours(20)
 ```
@@ -824,8 +724,6 @@ scheduler.NewJobBuilder(nil).EveryThreeHours(20)
 ### <a id="everythreeminutes"></a>EveryThreeMinutes
 
 EveryThreeMinutes schedules the job to run every 3 minutes.
-
-_Example: run every three minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -839,8 +737,6 @@ scheduler.NewJobBuilder(s).EveryThreeMinutes().Do(func() {})
 
 EveryTwentySeconds schedules the job to run every 20 seconds.
 
-_Example: run once every twenty seconds_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -853,8 +749,6 @@ scheduler.NewJobBuilder(s).EveryTwentySeconds().Do(func() {})
 
 EveryTwoHours schedules the job to run every two hours at the specified minute.
 
-_Example: run every two hours_
-
 ```go
 scheduler.NewJobBuilder(nil).EveryTwoHours(15)
 ```
@@ -862,8 +756,6 @@ scheduler.NewJobBuilder(nil).EveryTwoHours(15)
 ### <a id="everytwominutes"></a>EveryTwoMinutes
 
 EveryTwoMinutes schedules the job to run every 2 minutes.
-
-_Example: job that runs every two minutes_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -877,8 +769,6 @@ scheduler.NewJobBuilder(s).EveryTwoMinutes().Do(func() {})
 
 EveryTwoSeconds schedules the job to run every 2 seconds.
 
-_Example: throttle a task to two seconds_
-
 ```go
 s, _ := gocron.NewScheduler()
 s.Start()
@@ -890,8 +780,6 @@ scheduler.NewJobBuilder(s).EveryTwoSeconds().Do(func() {})
 ### <a id="hourly"></a>Hourly
 
 Hourly schedules the job to run every hour.
-
-_Example: run something hourly_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -905,8 +793,6 @@ scheduler.NewJobBuilder(s).Hourly().Do(func() {})
 
 HourlyAt schedules the job to run every hour at the specified minute.
 
-_Example: run at the 5th minute of each hour_
-
 ```go
 scheduler.NewJobBuilder(nil).HourlyAt(5)
 ```
@@ -914,8 +800,6 @@ scheduler.NewJobBuilder(nil).HourlyAt(5)
 ### <a id="hours"></a>Hours
 
 Hours schedules the job to run every X hours.
-
-_Example: build an hourly cadence_
 
 ```go
 scheduler.NewJobBuilder(nil).Every(6).Hours()
@@ -925,8 +809,6 @@ scheduler.NewJobBuilder(nil).Every(6).Hours()
 
 LastDayOfMonth schedules the job to run on the last day of each month at a specific time.
 
-_Example: run on the last day of the month_
-
 ```go
 scheduler.NewJobBuilder(nil).LastDayOfMonth("23:30")
 ```
@@ -934,8 +816,6 @@ scheduler.NewJobBuilder(nil).LastDayOfMonth("23:30")
 ### <a id="minutes"></a>Minutes
 
 Minutes schedules the job to run every X minutes.
-
-_Example: chain a minute-based interval_
 
 ```go
 scheduler.NewJobBuilder(nil).Every(15).Minutes()
@@ -945,8 +825,6 @@ scheduler.NewJobBuilder(nil).Every(15).Minutes()
 
 Monthly schedules the job to run on the first day of each month at midnight.
 
-_Example: first-of-month billing_
-
 ```go
 scheduler.NewJobBuilder(nil).Monthly()
 ```
@@ -954,8 +832,6 @@ scheduler.NewJobBuilder(nil).Monthly()
 ### <a id="monthlyon"></a>MonthlyOn
 
 MonthlyOn schedules the job to run on a specific day of the month at a given time.
-
-_Example: run on the 15th of each month_
 
 ```go
 scheduler.NewJobBuilder(nil).MonthlyOn(15, "09:30")
@@ -965,8 +841,6 @@ scheduler.NewJobBuilder(nil).MonthlyOn(15, "09:30")
 
 Quarterly schedules the job to run on the first day of each quarter at midnight.
 
-_Example: quarterly trigger_
-
 ```go
 scheduler.NewJobBuilder(nil).Quarterly()
 ```
@@ -975,8 +849,6 @@ scheduler.NewJobBuilder(nil).Quarterly()
 
 QuarterlyOn schedules the job to run on a specific day of each quarter at a given time.
 
-_Example: quarterly on a specific day_
-
 ```go
 scheduler.NewJobBuilder(nil).QuarterlyOn(3, "12:00")
 ```
@@ -984,8 +856,6 @@ scheduler.NewJobBuilder(nil).QuarterlyOn(3, "12:00")
 ### <a id="seconds"></a>Seconds
 
 Seconds schedules the job to run every X seconds.
-
-_Example: run a task every few seconds_
 
 ```go
 s, _ := gocron.NewScheduler()
@@ -1002,8 +872,6 @@ scheduler.NewJobBuilder(s).
 
 TwiceDaily schedules the job to run daily at two specified hours (e.g., 1 and 13).
 
-_Example: run two times per day_
-
 ```go
 scheduler.NewJobBuilder(nil).TwiceDaily(1, 13)
 ```
@@ -1011,8 +879,6 @@ scheduler.NewJobBuilder(nil).TwiceDaily(1, 13)
 ### <a id="twicedailyat"></a>TwiceDailyAt
 
 TwiceDailyAt schedules the job to run daily at two specified times (e.g., 1:15 and 13:15).
-
-_Example: run twice daily at explicit minutes_
 
 ```go
 scheduler.NewJobBuilder(nil).TwiceDailyAt(1, 13, 15)
@@ -1022,8 +888,6 @@ scheduler.NewJobBuilder(nil).TwiceDailyAt(1, 13, 15)
 
 TwiceMonthly schedules the job to run on two specific days of the month at the given time.
 
-_Example: run on two days each month_
-
 ```go
 scheduler.NewJobBuilder(nil).TwiceMonthly(1, 15, "10:00")
 ```
@@ -1031,8 +895,6 @@ scheduler.NewJobBuilder(nil).TwiceMonthly(1, 15, "10:00")
 ### <a id="weekly"></a>Weekly
 
 Weekly schedules the job to run once per week on Sunday at midnight.
-
-_Example: weekly maintenance_
 
 ```go
 scheduler.NewJobBuilder(nil).Weekly()
@@ -1043,8 +905,6 @@ scheduler.NewJobBuilder(nil).Weekly()
 WeeklyOn schedules the job to run weekly on a specific day of the week and time.
 Day uses 0 = Sunday through 6 = Saturday.
 
-_Example: run each Monday at 08:00_
-
 ```go
 scheduler.NewJobBuilder(nil).WeeklyOn(1, "8:00")
 ```
@@ -1053,8 +913,6 @@ scheduler.NewJobBuilder(nil).WeeklyOn(1, "8:00")
 
 Yearly schedules the job to run on January 1st every year at midnight.
 
-_Example: yearly trigger_
-
 ```go
 scheduler.NewJobBuilder(nil).Yearly()
 ```
@@ -1062,8 +920,6 @@ scheduler.NewJobBuilder(nil).Yearly()
 ### <a id="yearlyon"></a>YearlyOn
 
 YearlyOn schedules the job to run every year on a specific month, day, and time.
-
-_Example: yearly on a specific date_
 
 ```go
 scheduler.NewJobBuilder(nil).YearlyOn(12, 25, "06:45")
@@ -1074,8 +930,6 @@ scheduler.NewJobBuilder(nil).YearlyOn(12, 25, "06:45")
 ### <a id="retainstate"></a>RetainState
 
 RetainState allows the job to retain its state after execution.
-
-_Example: reuse interval configuration for multiple jobs_
 
 ```go
 s, _ := gocron.NewScheduler()
