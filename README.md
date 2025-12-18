@@ -14,7 +14,7 @@
     <img src="https://img.shields.io/github/v/tag/goforj/scheduler?label=version&sort=semver" alt="Latest tag">
     <a href="https://codecov.io/gh/goforj/scheduler" ><img src="https://codecov.io/github/goforj/scheduler/graph/badge.svg?token=9KT46ZORP3"/></a>
 <!-- test-count:embed:start -->
-    <img src="https://img.shields.io/badge/tests-183-brightgreen" alt="Tests">
+    <img src="https://img.shields.io/badge/tests-190-brightgreen" alt="Tests">
 <!-- test-count:embed:end -->
     <a href="https://goreportcard.com/report/github.com/goforj/scheduler"><img src="https://goreportcard.com/badge/github.com/goforj/scheduler" alt="Go Report Card"></a>
 </p>
@@ -343,13 +343,25 @@ scheduler.NewJobBuilder(nil).Environments("production").Daily()
 
 Fridays limits the job to Fridays.
 
+```go
+scheduler.NewJobBuilder(nil).Fridays().DailyAt("09:00")
+```
+
 ### <a id="mondays"></a>Mondays
 
 Mondays limits the job to Mondays.
 
+```go
+scheduler.NewJobBuilder(nil).Mondays().DailyAt("09:00")
+```
+
 ### <a id="saturdays"></a>Saturdays
 
 Saturdays limits the job to Saturdays.
+
+```go
+scheduler.NewJobBuilder(nil).Saturdays().DailyAt("09:00")
+```
 
 ### <a id="skip"></a>Skip
 
@@ -366,13 +378,25 @@ scheduler.NewJobBuilder(nil).
 
 Sundays limits the job to Sundays.
 
+```go
+scheduler.NewJobBuilder(nil).Sundays().DailyAt("09:00")
+```
+
 ### <a id="thursdays"></a>Thursdays
 
 Thursdays limits the job to Thursdays.
 
+```go
+scheduler.NewJobBuilder(nil).Thursdays().DailyAt("09:00")
+```
+
 ### <a id="tuesdays"></a>Tuesdays
 
 Tuesdays limits the job to Tuesdays.
+
+```go
+scheduler.NewJobBuilder(nil).Tuesdays().DailyAt("09:00")
+```
 
 ### <a id="unlessbetween"></a>UnlessBetween
 
@@ -387,6 +411,10 @@ scheduler.NewJobBuilder(nil).
 ### <a id="wednesdays"></a>Wednesdays
 
 Wednesdays limits the job to Wednesdays.
+
+```go
+scheduler.NewJobBuilder(nil).Wednesdays().DailyAt("09:00")
+```
 
 ### <a id="weekdays"></a>Weekdays
 

@@ -1,0 +1,13 @@
+//go:build ignore
+// +build ignore
+
+package main
+
+import "github.com/goforj/scheduler"
+
+func main() {
+	// Tuesdays limits the job to Tuesdays.
+
+	// Example: run only on Tuesdays
+	scheduler.NewJobBuilder(nil).Tuesdays().DailyAt("09:00")
+}

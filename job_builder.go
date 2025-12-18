@@ -1210,30 +1210,58 @@ func (j *JobBuilder) Weekends() *JobBuilder {
 
 // Sundays limits the job to Sundays.
 // @group Filters
+//
+// Example: run only on Sundays
+//
+//	scheduler.NewJobBuilder(nil).Sundays().DailyAt("09:00")
 func (j *JobBuilder) Sundays() *JobBuilder { return j.days(time.Sunday) }
 
 // Mondays limits the job to Mondays.
 // @group Filters
+//
+// Example: run only on Mondays
+//
+//	scheduler.NewJobBuilder(nil).Mondays().DailyAt("09:00")
 func (j *JobBuilder) Mondays() *JobBuilder { return j.days(time.Monday) }
 
 // Tuesdays limits the job to Tuesdays.
 // @group Filters
+//
+// Example: run only on Tuesdays
+//
+//	scheduler.NewJobBuilder(nil).Tuesdays().DailyAt("09:00")
 func (j *JobBuilder) Tuesdays() *JobBuilder { return j.days(time.Tuesday) }
 
 // Wednesdays limits the job to Wednesdays.
 // @group Filters
+//
+// Example: run only on Wednesdays
+//
+//	scheduler.NewJobBuilder(nil).Wednesdays().DailyAt("09:00")
 func (j *JobBuilder) Wednesdays() *JobBuilder { return j.days(time.Wednesday) }
 
 // Thursdays limits the job to Thursdays.
 // @group Filters
+//
+// Example: run only on Thursdays
+//
+//	scheduler.NewJobBuilder(nil).Thursdays().DailyAt("09:00")
 func (j *JobBuilder) Thursdays() *JobBuilder { return j.days(time.Thursday) }
 
 // Fridays limits the job to Fridays.
 // @group Filters
+//
+// Example: run only on Fridays
+//
+//	scheduler.NewJobBuilder(nil).Fridays().DailyAt("09:00")
 func (j *JobBuilder) Fridays() *JobBuilder { return j.days(time.Friday) }
 
 // Saturdays limits the job to Saturdays.
 // @group Filters
+//
+// Example: run only on Saturdays
+//
+//	scheduler.NewJobBuilder(nil).Saturdays().DailyAt("09:00")
 func (j *JobBuilder) Saturdays() *JobBuilder { return j.days(time.Saturday) }
 
 // Days limits the job to a specific set of weekdays.
